@@ -28,10 +28,10 @@
 
 #include "ifirmware.h"
 /**
- * @brief The SmoothiePlugin class
- * Plugin for Smoothie
+ * @brief The RedeemPlugin class
+ * Plugin for Redeem
  */
-class SmoothiePlugin : public IFirmware
+class RedeemPlugin : public IFirmware
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.kde.atelier.core.firmware")
@@ -39,9 +39,9 @@ class SmoothiePlugin : public IFirmware
 
 public:
     /**
-     * @brief Create new SmoothiePlugin
+     * @brief Create new RedeemPlugin
      */
-    SmoothiePlugin();
+    RedeemPlugin();
 
     /**
      * @brief Check for plugin support of sd cards.
@@ -51,7 +51,13 @@ public:
 
     /**
      * @brief Return Plugin name
-     * @return Smoothie
+     * @return Redeem
      */
     QString name() const override;
+
+    /**
+     * @brief validateCommand to filter commands from messages
+     * @param lastMessage: last Message from printer
+     */
+    void validateCommand(const QString &lastMessage) override;
 };

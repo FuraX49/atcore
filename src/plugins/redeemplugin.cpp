@@ -25,27 +25,29 @@
 #include <QLoggingCategory>
 #include <QString>
 
-#include "repetierplugin.h"
+#include "redeemplugin.h"
 #include "atcore.h"
 
-Q_LOGGING_CATEGORY(REPETIER_PLUGIN, "org.kde.atelier.core.firmware.repetier")
+Q_LOGGING_CATEGORY(REDEEM_PLUGIN, "org.kde.atelier.core.firmware.redeem")
 
-QString RepetierPlugin::name() const
+QString RedeemPlugin::name() const
 {
-    return QStringLiteral("Repetier");
+    return QStringLiteral("Redeem");
 }
 
-bool RepetierPlugin::isSdSupported() const
+
+bool RedeemPlugin::isSdSupported() const
 {
     return true;
 }
 
-RepetierPlugin::RepetierPlugin()
+
+RedeemPlugin::RedeemPlugin()
 {
-    qCDebug(REPETIER_PLUGIN) << name() << " plugin loaded!";
+    qCDebug(REDEEM_PLUGIN) << name() << " plugin loaded!";
 }
 
-void RepetierPlugin::validateCommand(const QString &lastMessage)
+void RedeemPlugin::validateCommand(const QString &lastMessage)
 {
     if (lastMessage.contains(QStringLiteral("End file list"))) {
         core()->setReadingSdCardList(false);
@@ -57,29 +59,15 @@ void RepetierPlugin::validateCommand(const QString &lastMessage)
             core()->appendSdCardFileList(fileName);
         }
     } else {
-        if (lastMessage.contains(QStringLiteral("SD card"))) {
-            if (lastMessage.contains(QStringLiteral("inserted"))) {
-                core()->setSdMounted(true);
-            } else if (lastMessage.contains(QStringLiteral("removed"))) {
-                core()->setSdMounted(false);
-            }
+        if (lastMessage.contains(QStringLiteral("SD card ok"))) {
+            core()->setSdMounted(true);
+        } else if (lastMessage.contains(QStringLiteral("SD init fail"))) {
+            core()->setSdMounted(false);
         } else if (lastMessage.contains(QStringLiteral("Begin file list"))) {
             core()->setSdMounted(true);
-            core()->setReadingSdCardList(true);
             core()->clearSdCardFileList();
+            core()->setReadingSdCardList(true);
         } else if (lastMessage.contains(QStringLiteral("SD printing byte"))) {
-            if (lastMessage.contains(QStringLiteral("SD printing byte 0/0"))) {
-                //not printing a file
-                return;
-            }
-            if (core()->state() != AtCore::BUSY) {
-                //This should only happen if Attached to an Sd printing machine.
-                //Just tell the client were starting a job like normal.
-                //For this to work the client should check if sdCardPrintStatus()
-                //Upon the Connection to a known firmware with sdSupport
-                core()->setState(AtCore::STARTPRINT);
-                core()->setState(AtCore::BUSY);
-            }
             QString temp = lastMessage;
             temp.replace(QStringLiteral("SD printing byte"), QString());
             qlonglong total = temp.mid(temp.lastIndexOf(QChar::fromLatin1('/')) + 1, temp.length() - temp.lastIndexOf(QChar::fromLatin1('/'))).toLongLong();
@@ -87,7 +75,7 @@ void RepetierPlugin::validateCommand(const QString &lastMessage)
                 temp.chop(temp.length() - temp.lastIndexOf(QChar::fromLatin1('/')));
                 qlonglong remaining = total - temp.toLongLong();
                 float progress = float(total - remaining) * 100 / float(total);
-                emit core()->printProgressChanged(progress);
+                core()->printProgressChanged(progress);
                 if (progress >= 100) {
                     core()->setState(AtCore::FINISHEDPRINT);
                     core()->setState(AtCore::IDLE);

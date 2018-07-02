@@ -80,12 +80,9 @@ AtCore::AtCore(QObject *parent) :
     d->tempTimer = new QTimer(this);
     d->tempTimer->setInterval(5000);
     d->tempTimer->setSingleShot(false);
-    //Attempt to find our plugins
-    QStringList paths = AtCoreDirectories::pluginDir;
-    //Add Our current run path/ plugins to the list
-    paths.prepend(qApp->applicationDirPath() + QStringLiteral("/plugins"));
+   //Attempt to find our plugins
     qCDebug(ATCORE_PLUGIN) << "Detecting Plugin path";
-    for (const auto &path : paths) {
+    for (const auto &path : AtCoreDirectories::pluginDir) {
         qCDebug(ATCORE_PLUGIN) << "Checking: " << path;
         QMap <QString, QString> tempMap = findFirmwarePlugins(path);
         if (!tempMap.isEmpty()) {
@@ -218,7 +215,9 @@ bool AtCore::initSerial(const QString &port, int baud)
     if (serialInitialized() && d->serial->isWritable()) {
         setState(AtCore::CONNECTING);
         connect(serial(), &SerialLayer::receivedCommand, this, &AtCore::findFirmware);
-        d->serialTimer->stop();
+        if (d->serialTimer != nullptr) {
+            d->serialTimer->stop();
+        }
         return true;
     } else {
         qCDebug(ATCORE_CORE) << "Failed to open device for Read / Write.";
@@ -307,7 +306,7 @@ void AtCore::newMessage(const QByteArray &message)
     if (d->lastMessage.contains("T:") || d->lastMessage.contains("B:")) {
         temperature().decodeTemp(message);
     }
-    emit(receivedMessage(d->lastMessage));
+    emit receivedMessage(d->lastMessage);
 }
 
 void AtCore::setRelativePosition()
@@ -393,7 +392,9 @@ void AtCore::closeConnection()
         //Clear our copy of the sdcard filelist
         clearSdCardFileList();
         setState(AtCore::DISCONNECTED);
-        d->serialTimer->start();
+        if (d->serialTimer != nullptr) {
+            d->serialTimer->stop();
+        }
     }
 }
 
@@ -406,15 +407,15 @@ void AtCore::setState(AtCore::STATES state)
 {
     if (state != d->printerState) {
         qCDebug(ATCORE_CORE) << QStringLiteral("Atcore state changed from [%1] to [%2]")
-                             .arg(QVariant::fromValue(d->printerState).value<QString>())
-                             .arg(QVariant::fromValue(state).value<QString>());
+                             .arg(QVariant::fromValue(d->printerState).value<QString>(),
+                              QVariant::fromValue(state).value<QString>());
         d->printerState = state;
         if (state == AtCore::FINISHEDPRINT && d->sdCardPrinting) {
             //Clean up the sd card print
             d->sdCardPrinting = false;
             disconnect(d->tempTimer, &QTimer::timeout, this, &AtCore::sdCardPrintStatus);
         }
-        emit(stateChanged(d->printerState));
+        emit stateChanged(d->printerState);
     }
 }
 
@@ -713,7 +714,7 @@ void AtCore::setSdMounted(bool mounted)
 {
     if (mounted != isSdMounted()) {
         d->sdCardMounted = mounted;
-        emit(sdMountChanged(d->sdCardMounted));
+        emit sdMountChanged(d->sdCardMounted);
     }
 }
 
@@ -733,13 +734,13 @@ QStringList AtCore::sdFileList()
 void AtCore::appendSdCardFileList(const QString &fileName)
 {
     d->sdCardFileList.append(fileName);
-    emit(sdCardFileListChanged(d->sdCardFileList));
+    emit sdCardFileListChanged(d->sdCardFileList);
 }
 
 void AtCore::clearSdCardFileList()
 {
     d->sdCardFileList.clear();
-    emit(sdCardFileListChanged(d->sdCardFileList));
+    emit sdCardFileListChanged(d->sdCardFileList);
 }
 
 void AtCore::sdDelete(const QString &fileName)

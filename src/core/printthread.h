@@ -150,4 +150,6 @@ private:
      * @brief d: Private storage for the thread
      */
     PrintThreadPrivate *d;
+    qint64 cntEmitProgress ;
+    qint64 sizeWhenEmit;
 };

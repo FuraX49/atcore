@@ -74,6 +74,9 @@ void PrintThread::start()
     connect(this, &PrintThread::stateChanged, d->core, &AtCore::setState, Qt::QueuedConnection);
     connect(d->core, &AtCore::stateChanged, this, &PrintThread::setState, Qt::QueuedConnection);
     connect(this, &PrintThread::finished, this, &PrintThread::deleteLater);
+    //  Reduce Emit Progress
+    sizeWhenEmit=(d->totalSize/1000)+1;
+    cntEmitProgress=0 ;
     // force a command if the printer doesn't send "wait" when idle
     processJob();
 }
@@ -122,13 +125,13 @@ void PrintThread::processJob()
 
 void PrintThread::endPrint()
 {
-    emit(printProgressChanged(100));
+    emit printProgressChanged(100);
     qCDebug(PRINT_THREAD) << "atEnd";
     disconnect(d->core->firmwarePlugin(), &IFirmware::readyForCommand, this, &PrintThread::processJob);
     disconnect(this, &PrintThread::nextCommand, d->core, &AtCore::pushCommand);
     disconnect(d->core, &AtCore::stateChanged, this, &PrintThread::setState);
-    emit(stateChanged(AtCore::FINISHEDPRINT));
-    emit(stateChanged(AtCore::IDLE));
+    emit stateChanged(AtCore::FINISHEDPRINT);
+    emit stateChanged(AtCore::IDLE);
     disconnect(this, &PrintThread::stateChanged, d->core, &AtCore::setState);
     emit finished();
 
@@ -138,9 +141,14 @@ void PrintThread::nextLine()
     d->cline = d->gcodestream->readLine();
     qCDebug(PRINT_THREAD) << "Nextline:" << d->cline;
     d->stillSize -= d->cline.size() + 1; //remove read chars
-    d->printProgress = float(d->totalSize - d->stillSize) * 100.0 / float(d->totalSize);
-    qCDebug(PRINT_THREAD) << "progress:" << QString::number(d->printProgress);
-    emit(printProgressChanged(d->printProgress));
+    // Reduce emit progress
+    cntEmitProgress++;
+    if (cntEmitProgress>sizeWhenEmit) {
+        cntEmitProgress=0;
+        d->printProgress = float(d->totalSize - d->stillSize) * 100.0 / float(d->totalSize);
+        qCDebug(PRINT_THREAD) << "progress:" << QString::number(d->printProgress);
+        emit printProgressChanged(d->printProgress);
+    }
 
     if (d->cline.startsWith(QStringLiteral(";-"))) {
         injectCommand(d->cline);
@@ -169,18 +177,18 @@ void PrintThread::setState(const AtCore::STATES &newState)
             (
                 newState == AtCore::STATES::PAUSE ||
                 newState == AtCore::STATES::STOP
-            )
-       ) {
+                )
+            ) {
         qCDebug(PRINT_THREAD) << "Serial not connected !";
         return;
     }
     if (newState != d->state) {
         qCDebug(PRINT_THREAD) << QStringLiteral("State changed from [%1] to [%2]")
-                              .arg(QVariant::fromValue(d->state).value<QString>())
-                              .arg(QVariant::fromValue(newState).value<QString>());
+                                 .arg(QVariant::fromValue(d->state).value<QString>(),
+                                      QVariant::fromValue(newState).value<QString>());
         disconnect(d->core, &AtCore::stateChanged, this, &PrintThread::setState);
         d->state = newState;
-        emit(stateChanged(d->state));
+        emit stateChanged(d->state);
         connect(d->core, &AtCore::stateChanged, this, &PrintThread::setState, Qt::QueuedConnection);
     }
 }
