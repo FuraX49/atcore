@@ -1,5 +1,6 @@
 add_subdirectory(core)
 add_subdirectory(plugins)
+# not used for BBK
 #add_subdirectory(widgets)
 
 install(

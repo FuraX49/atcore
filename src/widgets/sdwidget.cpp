@@ -29,25 +29,25 @@ SdWidget::SdWidget(QWidget *parent) :
 
     auto newButton = new QPushButton(tr("Get List"));
     hBoxLayout->addWidget(newButton);
-    connect(newButton, &QPushButton::clicked, [this] {
-        emit(requestSdList());
+    connect(newButton, &QPushButton::clicked, this, [this] {
+        emit requestSdList();
     });
 
     newButton = new QPushButton(tr("Print Selected"));
     hBoxLayout->addWidget(newButton);
-    connect(newButton, &QPushButton::clicked, [this] {
+    connect(newButton, &QPushButton::clicked, this, [this] {
         if (listSdFiles->currentRow() != -1)
         {
-            emit(printSdFile(listSdFiles->currentItem()->text()));
+            emit printSdFile(listSdFiles->currentItem()->text());
         }
     });
 
     newButton = new QPushButton(tr("Delete Selected"));
     hBoxLayout->addWidget(newButton);
-    connect(newButton, &QPushButton::clicked, [this] {
+    connect(newButton, &QPushButton::clicked, this, [this] {
         if (listSdFiles->currentRow() != -1)
         {
-            emit(deleteSdFile(listSdFiles->currentItem()->text()));
+            emit deleteSdFile(listSdFiles->currentItem()->text());
             listSdFiles->setCurrentRow(-1);
         }
     });
