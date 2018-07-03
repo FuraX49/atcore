@@ -27,6 +27,10 @@ Run the script to fake a 3D printer, before using it, run **socat.sh**.
 
 Create two fake serial devices in */dev/ttyVirtual1* and */dev/ttyVirtual2*, the first will be used by the interface and the second by the **fakeprinter.py** script.
 
+#### <i class="icon-file"></i> testing_1
+Create remote  serial devices in /dev/testing_1 too Replicape, edit for change th ip of your Replicape.
+Used for testing on Desktop.
+
 > **Note:**
 
 > - Make sure that socat is installed in your system.

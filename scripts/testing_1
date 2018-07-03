@@ -1,0 +1,5 @@
+#!/bin/bash
+while sleep 3; do
+  echo "RESTART SOCAT on /dev/testing_1"
+  socat  -v -d -d  pty,link=/dev/testing_1,raw,echo=0,mode=777 tcp:192.168.0.18:50000,reuseaddr,forever
+done
