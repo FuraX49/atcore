@@ -29,7 +29,7 @@ set_package_properties(
     DESCRIPTION "Extra modules and scripts for CMake"
     URL "git://anongit.kde.org/extra-cmake-modules")
 
-set(PROJECT_VERSION "1.0.70")
+set(PROJECT_VERSION "1.0.71")
 set(KF5_DEP_VERSION "5.24.0") # handled by release scripts
 set(REQUIRED_QT_VERSION 5.4.0)
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/AtCore")

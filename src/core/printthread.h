@@ -27,7 +27,6 @@
 
 #include "atcore.h"
 
-class PrintThreadPrivate;
 /**
  * @brief The PrintThread class
  * A Thread for running a print job
@@ -149,6 +148,7 @@ private:
     /**
      * @brief d: Private storage for the thread
      */
+    class PrintThreadPrivate;
     PrintThreadPrivate *d;
     qint64 cntEmitProgress ;
     qint64 sizeWhenEmit;

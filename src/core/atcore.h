@@ -37,7 +37,6 @@ class SerialLayer;
 class IFirmware;
 class QTime;
 
-struct AtCorePrivate;
 
 /**
  * @brief The AtCore class
@@ -546,6 +545,7 @@ private:
     /**
      * @brief Hold private data of AtCore.
      */
+    struct AtCorePrivate;
     AtCorePrivate *d;
 
 protected:

@@ -24,6 +24,7 @@ Currenty the following firmwares are supported.
  SPrinter      | YES     | NO
  Smoothie      | YES     | NO
  GRBL          | YES     | NO
+ Redeem        | YES     | Yes ***
 
 ## Building  Deploying  AtCore
  See: [Building and Deploying]
