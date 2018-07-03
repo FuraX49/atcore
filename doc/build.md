@@ -97,18 +97,18 @@ atcore-gui.app/Contents/MacOS/plugins/repetier.dylib
 
 ### cross compil AtCore on Replicape
 mount Replicape in /mnt/bbk_sysroot  
-Project configuration RELEASE 
+Project configuration :  RELEASE 
 uncheck all except BUILD_SHARED_LIBS
-in advanced
 
+in advanced :
 KDE_INSTALL_INCLUDEDIR=/mnt/bbk_sysroot/usr/include/arm-linux-gnueabihf
 KDE_INSTALL_LIBDIR    =/mnt/bbk_sysroot/opt/qt511/lib 
 KDE_INSTALL_PLUGINDIR =/mnt/bbk_sysroot/opt/qt511/plugins
 
-In console  got to build directory and run:
+In console  go to build directory and run: 
+```
 sudo cmake -P cmake_install.cmake
-
-
+```
 [Qt]:https://www.qt.io
 [doxygen]:http://www.stack.nl/~dimitri/doxygen/
 [cmake]:https://cmake.org/
